@@ -63,38 +63,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/settings/appearance', [SettingsController::class, 'updateAppearance'])->name('settings.appearance');
     Route::post('/settings/security', [SettingsController::class, 'updateSecurity'])->name('settings.security');
     
-    Route::get('/', function () {
-        $user = Auth::user();
-        // Compter uniquement les tâches non terminées
-        $tasksCount = $user->tasks()->where('status', '!=', 'completed')->count();
-        $routinesCount = $user->routines()->count();
-        $notesCount = $user->notes()->count();
-        $remindersCount = $user->reminders()->count();
-        $filesCount = $user->files()->count();
-        
-        // Récupérer uniquement les tâches non terminées
-        $recentTasks = $user->tasks()->where('status', '!=', 'completed')->latest()->take(5)->get();
-        $todayRoutines = $user->routines()->whereDate('start_time', now())->get();
-        $recentNotes = $user->notes()->latest()->take(5)->get();
-
-        // Récupérer les rappels qui ne sont pas encore passés, triés par date
-        $upcomingReminders = $user->reminders()
-            ->whereDate('date', '>=', now()->subDay())  // Inclure aujourd'hui et les rappels futurs
-            ->orderBy('date')
-            ->orderBy('time')
-            ->take(5)
-            ->get();
-
-        return view('dashboard', compact(
-            'tasksCount',
-            'routinesCount',
-            'notesCount',
-            'remindersCount',
-            'filesCount',
-            'recentTasks',
-            'todayRoutines',
-            'recentNotes',
-            'upcomingReminders'
-        ));
-    })->name('dashboard');
+    Route::get('/', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 });

@@ -60,16 +60,41 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="status" class="form-label">Statut</label>
-                            <select name="status" id="status" class="form-select @error('status') is-invalid @enderror">
-                                <option value="to_do" {{ old('status', $task->status) == 'to_do' ? 'selected' : '' }}>À faire</option>
-                                <option value="in_progress" {{ old('status', $task->status) == 'in_progress' ? 'selected' : '' }}>En cours</option>
-                                <option value="completed" {{ old('status', $task->status) == 'completed' ? 'selected' : '' }}>Terminé</option>
-                            </select>
-                            @error('status')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">Statut</label>
+                                    <select name="status" id="status" class="form-select @error('status') is-invalid @enderror">
+                                        <option value="to_do" {{ old('status', $task->status) == 'to_do' ? 'selected' : '' }}>À faire</option>
+                                        <option value="in_progress" {{ old('status', $task->status) == 'in_progress' ? 'selected' : '' }}>En cours</option>
+                                        <option value="completed" {{ old('status', $task->status) == 'completed' ? 'selected' : '' }}>Terminé</option>
+                                    </select>
+                                    @error('status')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="assigned_to" class="form-label">Assigner à</label>
+                                    <select name="assigned_to" id="assigned_to" class="form-select @error('assigned_to') is-invalid @enderror">
+                                        <option value="">Moi-même</option>
+                                        @php
+                                            $users = \App\Models\User::all();
+                                        @endphp
+                                        @foreach($users as $user)
+                                            @if($user->id !== auth()->id())
+                                                <option value="{{ $user->id }}" {{ old('assigned_to', $task->assigned_to) == $user->id ? 'selected' : '' }}>
+                                                    {{ $user->name }}
+                                                </option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                    @error('assigned_to')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
 
                         <div class="d-flex justify-content-between">

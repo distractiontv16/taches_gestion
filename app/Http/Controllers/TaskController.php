@@ -4,12 +4,19 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\Reminder;
+use App\Services\TaskNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class TaskController extends Controller
 {
+    protected $taskNotificationService;
+
+    public function __construct(TaskNotificationService $taskNotificationService)
+    {
+        $this->taskNotificationService = $taskNotificationService;
+    }
     public function index()
     {
         // Affiche toutes les tâches de l'utilisateur actuel
@@ -20,7 +27,8 @@ class TaskController extends Controller
 
     public function create()
     {
-        return view('tasks.create');
+        $users = User::all();
+        return view('tasks.create', compact('users'));
     }
 
     public function store(Request $request)
@@ -31,6 +39,7 @@ class TaskController extends Controller
             'due_date' => 'nullable|date',
             'priority' => 'required|in:low,medium,high',
             'status' => 'nullable|in:to_do,in_progress,completed',
+            'assigned_to' => 'nullable|exists:users,id',
         ]);
 
         $taskData = $request->all();
@@ -42,6 +51,14 @@ class TaskController extends Controller
         // Create a reminder for the task if due_date is set
         if ($request->filled('due_date')) {
             $this->createTaskReminder($task);
+        }
+
+        // Send notification if task is assigned to someone else
+        if ($task->assigned_to && $task->assigned_to !== Auth::id()) {
+            $assignedUser = User::find($task->assigned_to);
+            if ($assignedUser) {
+                $this->taskNotificationService->notifyTaskAssignment($task, $assignedUser);
+            }
         }
 
         return redirect()->route('tasks.index')->with('success', 'Tâche créée avec succès.');

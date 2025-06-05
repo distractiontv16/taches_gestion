@@ -19,18 +19,19 @@ class TaskNotificationService
     /**
      * Send notification when a task is assigned to a user
      */
-    public function notifyTaskAssignment(Task $task, User $assignedUser)
+    public function notifyTaskAssignment(Task $task, User $assignedUser, bool $isReassignment = false)
     {
         try {
             // Send WhatsApp notification if user has WhatsApp number
             if ($assignedUser->whatsapp_number) {
-                $message = $this->buildTaskAssignmentMessage($task, $assignedUser);
+                $message = $this->buildTaskAssignmentMessage($task, $assignedUser, $isReassignment);
                 $this->whatsAppService->sendMessage($assignedUser->whatsapp_number, $message);
-                
+
                 Log::info('Task assignment notification sent via WhatsApp', [
                     'task_id' => $task->id,
                     'assigned_to' => $assignedUser->id,
-                    'whatsapp_number' => $assignedUser->whatsapp_number
+                    'whatsapp_number' => $assignedUser->whatsapp_number,
+                    'is_reassignment' => $isReassignment
                 ]);
             }
 
@@ -49,25 +50,32 @@ class TaskNotificationService
     /**
      * Build WhatsApp message for task assignment
      */
-    private function buildTaskAssignmentMessage(Task $task, User $assignedUser): string
+    private function buildTaskAssignmentMessage(Task $task, User $assignedUser, bool $isReassignment = false): string
     {
-        $message = "🎯 *Nouvelle tâche assignée*\n\n";
+        $message = $isReassignment ? "🔄 *Tâche réassignée*\n\n" : "🎯 *Nouvelle tâche assignée*\n\n";
         $message .= "Bonjour {$assignedUser->name},\n\n";
-        $message .= "Une nouvelle tâche vous a été assignée :\n\n";
+
+        if ($isReassignment) {
+            $message .= "Une tâche vous a été réassignée :\n\n";
+        } else {
+            $message .= "Une nouvelle tâche vous a été assignée :\n\n";
+        }
+
         $message .= "📋 *Titre :* {$task->title}\n";
-        
+
         if ($task->description) {
             $message .= "📝 *Description :* {$task->description}\n";
         }
-        
+
         $message .= "⚡ *Priorité :* " . $this->getPriorityText($task->priority) . "\n";
-        
+        $message .= "📊 *Statut :* " . $this->getStatusText($task->status) . "\n";
+
         if ($task->due_date) {
             $message .= "📅 *Échéance :* " . $task->due_date->format('d/m/Y H:i') . "\n";
         }
-        
+
         $message .= "\n✅ Connectez-vous à l'application pour voir les détails et gérer cette tâche.";
-        
+
         return $message;
     }
 

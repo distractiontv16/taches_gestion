@@ -19,9 +19,9 @@ class TaskController extends Controller
     }
     public function index()
     {
-        // Affiche toutes les tâches de l'utilisateur actuel
+        // Affiche toutes les tâches de l'utilisateur actuel avec les relations
         $user = Auth::user();
-        $tasks = $user->tasks()->get()->groupBy('status');
+        $tasks = $user->tasks()->with('assignedUser')->get()->groupBy('status');
         return view('tasks.index', compact('tasks'));
     }
 
@@ -77,18 +77,38 @@ class TaskController extends Controller
             'due_date' => 'nullable|date',
             'priority' => 'required|in:low,medium,high',
             'status' => 'required|in:to_do,in_progress,completed',
+            'assigned_to' => 'nullable|exists:users,id',
         ]);
+
+        // Store old values for comparison
+        $oldAssignedTo = $task->assigned_to;
+        $oldStatus = $task->status;
 
         // Check if due_date has changed
         $dueDateChanged = $task->due_date && $request->due_date && $task->due_date->format('Y-m-d') !== $request->due_date;
-        
+
+        // Update the task
         $task->update($request->all());
+
+        // Check if assignment has changed and send notification
+        if ($oldAssignedTo !== $task->assigned_to && $task->assigned_to && $task->assigned_to !== Auth::id()) {
+            $assignedUser = User::find($task->assigned_to);
+            if ($assignedUser) {
+                // This is a reassignment since the task already existed
+                $this->taskNotificationService->notifyTaskAssignment($task, $assignedUser, true);
+            }
+        }
+
+        // Check if status has changed and notify
+        if ($oldStatus !== $task->status && $task->assigned_to && $task->assigned_to !== $task->user_id) {
+            $this->taskNotificationService->notifyTaskStatusChange($task, $oldStatus, $task->status);
+        }
 
         // Update or create reminder if due date has changed
         if ($dueDateChanged || (!$task->due_date && $request->filled('due_date'))) {
             // Delete existing reminders for this task
             $task->reminders()->delete();
-            
+
             // Create new reminder if due_date is set
             if ($request->filled('due_date')) {
                 $this->createTaskReminder($task);
@@ -132,7 +152,8 @@ class TaskController extends Controller
 
     public function edit(Task $task)
     {
-        return view('tasks.edit', compact('task'));
+        $users = User::all();
+        return view('tasks.edit', compact('task', 'users'));
     }
 
     public function destroy(Task $task)

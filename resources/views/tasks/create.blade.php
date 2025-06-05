@@ -78,11 +78,14 @@
                                 <div class="mb-3">
                                     <label for="assigned_to" class="form-label">Assigner à</label>
                                     <select name="assigned_to" id="assigned_to" class="form-select @error('assigned_to') is-invalid @enderror">
-                                        <option value="">Moi-même</option>
+                                        <option value="">Moi-même ({{ auth()->user()->name }})</option>
                                         @foreach($users as $user)
                                             @if($user->id !== auth()->id())
                                                 <option value="{{ $user->id }}" {{ old('assigned_to') == $user->id ? 'selected' : '' }}>
                                                     {{ $user->name }}
+                                                    @if($user->whatsapp_number)
+                                                        <span class="text-muted">(WhatsApp disponible)</span>
+                                                    @endif
                                                 </option>
                                             @endif
                                         @endforeach
@@ -90,6 +93,10 @@
                                     @error('assigned_to')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle"></i>
+                                        Les utilisateurs avec WhatsApp recevront une notification lors de l'assignation.
+                                    </div>
                                 </div>
                             </div>
                         </div>

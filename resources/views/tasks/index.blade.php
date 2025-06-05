@@ -121,11 +121,20 @@
                             <div class="card mb-3 kanban-item" data-id="{{ $task->id }}" draggable="true">
                                 <div class="card-body">
                                     <h5 class="card-title">
-                                        {{ $task->title }} 
+                                        {{ $task->title }}
                                         <span style="font-size: 12px;" class="badge {{ $task->priority == 'low' ? 'bg-success' : ($task->priority == 'medium' ? 'bg-warning' : 'bg-danger') }}">{{ $task->priority == 'low' ? 'Faible' : ($task->priority == 'medium' ? 'Moyenne' : 'Haute') }}</span>
                                     </h5>
-                                    
+
                                     <p class="card-text">{{ Str::limit($task->description, 100) }}</p>
+
+                                    @if($task->assigned_to)
+                                        <div class="mb-2">
+                                            <small class="text-muted">
+                                                <i class="bi bi-person-fill"></i>
+                                                Assigné à : <strong>{{ $task->assignedUser->name }}</strong>
+                                            </small>
+                                        </div>
+                                    @endif
                                     <div class="d-flex">
                                         <a href="{{ route('tasks.show', $task->id) }}" class="btn btn-primary btn-sm me-2"><i class="bi bi-eye"></i></a>
                                         <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" class="d-inline delete-task-form">
@@ -158,6 +167,15 @@
                                         <span style="font-size: 12px;" class="badge {{ $task->priority == 'low' ? 'bg-success' : ($task->priority == 'medium' ? 'bg-warning' : 'bg-danger') }}">{{ $task->priority == 'low' ? 'Faible' : ($task->priority == 'medium' ? 'Moyenne' : 'Haute') }}</span>
                                     </h5>
                                     <p class="card-text">{{ Str::limit($task->description, 100) }}</p>
+
+                                    @if($task->assigned_to)
+                                        <div class="mb-2">
+                                            <small class="text-muted">
+                                                <i class="bi bi-person-fill"></i>
+                                                Assigné à : <strong>{{ $task->assignedUser->name }}</strong>
+                                            </small>
+                                        </div>
+                                    @endif
                                     <div class="d-flex">
                                         <a href="{{ route('tasks.show', $task->id) }}" class="btn btn-warning btn-sm me-2"><i class="bi bi-eye"></i></a>
                                         <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" class="d-inline delete-task-form">
@@ -189,6 +207,15 @@
                                         <span style="font-size: 12px;" class="badge {{ $task->priority == 'low' ? 'bg-success' : ($task->priority == 'medium' ? 'bg-warning' : 'bg-danger') }}">{{ $task->priority == 'low' ? 'Faible' : ($task->priority == 'medium' ? 'Moyenne' : 'Haute') }}</span>
                                     </h5>
                                     <p class="card-text">{{ Str::limit($task->description, 100) }}</p>
+
+                                    @if($task->assigned_to)
+                                        <div class="mb-2">
+                                            <small class="text-muted">
+                                                <i class="bi bi-person-fill"></i>
+                                                Assigné à : <strong>{{ $task->assignedUser->name }}</strong>
+                                            </small>
+                                        </div>
+                                    @endif
                                     <div class="d-flex">
                                         <a href="{{ route('tasks.show', $task->id) }}" class="btn btn-success btn-sm me-2"><i class="bi bi-eye"></i></a>
                                         <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" class="d-inline delete-task-form">

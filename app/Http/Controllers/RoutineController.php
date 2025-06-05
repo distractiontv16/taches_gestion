@@ -2,12 +2,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Routine;
+use App\Services\RoutineTaskGeneratorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class RoutineController extends Controller
 {
+    protected RoutineTaskGeneratorService $generatorService;
+
+    public function __construct(RoutineTaskGeneratorService $generatorService)
+    {
+        $this->generatorService = $generatorService;
+    }
     public function index()
     {
         $today = Carbon::today();
@@ -68,7 +75,10 @@ class RoutineController extends Controller
             'months' => 'nullable|array',
             'start_time' => 'required',
             'end_time' => 'required',
+            'due_time' => 'nullable|date_format:H:i',
+            'priority' => 'required|in:low,medium,high',
             'workdays_only' => 'boolean',
+            'is_active' => 'boolean',
         ]);
 
         $routineData = $request->all();
@@ -82,12 +92,16 @@ class RoutineController extends Controller
             $routineData['months'] = json_encode($request->months);
         }
         
-        // Set workdays_only default if not provided
+        // Set defaults for boolean fields
         $routineData['workdays_only'] = $request->has('workdays_only') ? (bool)$request->workdays_only : false;
+        $routineData['is_active'] = $request->has('is_active') ? (bool)$request->is_active : true;
+
+        // Set default priority if not provided
+        $routineData['priority'] = $request->priority ?? 'medium';
 
         Auth::user()->routines()->create($routineData);
 
-        return redirect()->route('routines.index')->with('success', 'Routine created successfully.');
+        return redirect()->route('routines.index')->with('success', 'Routine créée avec succès.');
     }
 
     public function edit(Routine $routine)
@@ -159,5 +173,40 @@ class RoutineController extends Controller
     {
         $monthlyRoutines = Auth::user()->routines()->where('frequency', 'monthly')->get();
         return view('routines.monthly', compact('monthlyRoutines'));
+    }
+
+    /**
+     * Prévisualise les tâches qui seraient générées pour une routine
+     */
+    public function preview(Routine $routine)
+    {
+        $preview = $this->generatorService->previewTasksForRoutine($routine, 14); // 2 semaines
+
+        return response()->json([
+            'success' => true,
+            'preview' => $preview,
+            'routine' => [
+                'id' => $routine->id,
+                'title' => $routine->title,
+                'frequency' => $routine->frequency,
+                'is_active' => $routine->is_active
+            ]
+        ]);
+    }
+
+    /**
+     * Active ou désactive une routine
+     */
+    public function toggleActive(Routine $routine)
+    {
+        $routine->update(['is_active' => !$routine->is_active]);
+
+        $status = $routine->is_active ? 'activée' : 'désactivée';
+
+        return response()->json([
+            'success' => true,
+            'message' => "Routine {$status} avec succès",
+            'is_active' => $routine->is_active
+        ]);
     }
 }

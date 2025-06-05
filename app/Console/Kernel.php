@@ -12,9 +12,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
+        // Générer les tâches routinières tous les jours à 6h00
+        $schedule->command('app:generate-routine-tasks')->dailyAt('06:00');
+
         // Envoyer les emails de rappel toutes les heures
         $schedule->command('app:send-reminder-emails')->hourly();
-        
+
         // Nettoyer les rappels expirés toutes les heures
         $schedule->command('app:clean-expired-reminders')->hourly();
     }

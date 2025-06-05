@@ -123,6 +123,11 @@
                                     <h5 class="card-title">
                                         {{ $task->title }}
                                         <span style="font-size: 12px;" class="badge {{ $task->priority == 'low' ? 'bg-success' : ($task->priority == 'medium' ? 'bg-warning' : 'bg-danger') }}">{{ $task->priority == 'low' ? 'Faible' : ($task->priority == 'medium' ? 'Moyenne' : 'Haute') }}</span>
+                                        @if($task->is_auto_generated)
+                                        <span style="font-size: 10px;" class="badge bg-info ms-1" title="Tâche générée automatiquement">
+                                            <i class="bi bi-robot"></i> Auto
+                                        </span>
+                                        @endif
                                     </h5>
 
                                     <p class="card-text">{{ Str::limit($task->description, 100) }}</p>
@@ -165,6 +170,11 @@
                                     <h5 class="card-title">
                                         {{ $task->title }}
                                         <span style="font-size: 12px;" class="badge {{ $task->priority == 'low' ? 'bg-success' : ($task->priority == 'medium' ? 'bg-warning' : 'bg-danger') }}">{{ $task->priority == 'low' ? 'Faible' : ($task->priority == 'medium' ? 'Moyenne' : 'Haute') }}</span>
+                                        @if($task->is_auto_generated)
+                                        <span style="font-size: 10px;" class="badge bg-info ms-1" title="Tâche générée automatiquement">
+                                            <i class="bi bi-robot"></i> Auto
+                                        </span>
+                                        @endif
                                     </h5>
                                     <p class="card-text">{{ Str::limit($task->description, 100) }}</p>
 
@@ -205,6 +215,11 @@
                                     <h5 class="card-title">
                                         {{ $task->title }}
                                         <span style="font-size: 12px;" class="badge {{ $task->priority == 'low' ? 'bg-success' : ($task->priority == 'medium' ? 'bg-warning' : 'bg-danger') }}">{{ $task->priority == 'low' ? 'Faible' : ($task->priority == 'medium' ? 'Moyenne' : 'Haute') }}</span>
+                                        @if($task->is_auto_generated)
+                                        <span style="font-size: 10px;" class="badge bg-info ms-1" title="Tâche générée automatiquement">
+                                            <i class="bi bi-robot"></i> Auto
+                                        </span>
+                                        @endif
                                     </h5>
                                     <p class="card-text">{{ Str::limit($task->description, 100) }}</p>
 

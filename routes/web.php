@@ -49,6 +49,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('routines/daily', [RoutineController::class, 'showDaily'])->name('routines.showDaily');
     Route::get('routines/weekly', [RoutineController::class, 'showWeekly'])->name('routines.showWeekly');
     Route::get('routines/monthly', [RoutineController::class, 'showMonthly'])->name('routines.showMonthly');
+    Route::get('routines/{routine}/preview', [RoutineController::class, 'preview'])->name('routines.preview');
+    Route::post('routines/{routine}/toggle-active', [RoutineController::class, 'toggleActive'])->name('routines.toggleActive');
     Route::resource('files', FileController::class);
     Route::get('files/{file}/download', [FileController::class, 'download'])->name('files.download');
     Route::resource('notes', NoteController::class);

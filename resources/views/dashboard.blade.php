@@ -155,6 +155,89 @@
     </div>
     @endif
 
+    <!-- Statistiques des Tâches Automatiques -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3">🤖 Tâches Automatiques (Routines)</h4>
+        </div>
+
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Routines Actives</h6>
+                            <h2 class="mb-0">{{ $autoTaskStats['active_routines'] }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-arrow-repeat fs-1"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <small>{{ $autoTaskStats['inactive_routines'] }} inactives</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card bg-secondary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Tâches Auto Générées</h6>
+                            <h2 class="mb-0">{{ $autoTaskStats['total_auto_tasks'] }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-robot fs-1"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <small>Taux: {{ $autoTaskStats['auto_completion_rate'] }}%</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">En Attente</h6>
+                            <h2 class="mb-0">{{ $autoTaskStats['pending_auto_tasks'] }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-clock fs-1"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <small>Tâches automatiques</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Générées Aujourd'hui</h6>
+                            <h2 class="mb-0">{{ $autoTaskStats['today_auto_tasks'] }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-calendar-check fs-1"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <small>{{ $autoTaskStats['week_auto_tasks'] }} cette semaine</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Statistiques des Routines et Rappels -->
     <div class="row mb-4">
         <div class="col-lg-6 mb-4">
@@ -287,6 +370,56 @@
             </div>
         </div>
     </div>
+
+    <!-- Section Tâches Automatiques Prochaines -->
+    @if($autoTaskStats['upcoming_auto_tasks']->count() > 0)
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">🤖 Prochaines Tâches Automatiques</h5>
+                    <a href="{{ route('routines.index') }}" class="btn btn-sm btn-outline-primary">Gérer les routines</a>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        @foreach($autoTaskStats['upcoming_auto_tasks'] as $task)
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card border-start border-4 border-info">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="card-title mb-1">{{ $task->title }}</h6>
+                                            <p class="text-muted small mb-1">
+                                                <i class="bi bi-robot"></i> Générée automatiquement
+                                            </p>
+                                            @if($task->routine)
+                                            <p class="text-muted small mb-1">
+                                                <i class="bi bi-arrow-repeat"></i> {{ $task->routine->title }}
+                                            </p>
+                                            @endif
+                                        </div>
+                                        <span class="badge bg-{{ $task->priority === 'high' ? 'danger' : ($task->priority === 'medium' ? 'warning' : 'success') }}">
+                                            {{ ucfirst($task->priority) }}
+                                        </span>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar"></i> {{ $task->target_date->format('d/m/Y') }}
+                                            @if($task->due_date)
+                                            <br><i class="bi bi-clock"></i> {{ $task->due_date->format('H:i') }}
+                                            @endif
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 @endsection
 

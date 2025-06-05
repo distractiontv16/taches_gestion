@@ -1,0 +1,256 @@
+/* responsive.css - Styles responsifs pour le gestionnaire de tâches */
+
+/* Styles généraux responsifs */
+html, body {
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Styles pour appareils mobiles (jusqu'à 576px) */
+@media (max-width: 576px) {
+  h1, .h1 {
+    font-size: 1.75rem;
+  }
+  
+  h2, .h2 {
+    font-size: 1.5rem;
+  }
+  
+  h3, .h3 {
+    font-size: 1.25rem;
+  }
+  
+  .container {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  
+  /* Ajustements pour les boutons sur mobile */
+  .btn {
+    padding: .25rem .5rem;
+    font-size: .875rem;
+  }
+  
+  /* Réduire les marges sur mobile */
+  .card {
+    margin-bottom: 1rem;
+  }
+  
+  .card-body {
+    padding: 0.75rem;
+  }
+  
+  /* Ajustements pour les forms sur mobile */
+  .form-label {
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  /* Pour éviter le zoom sur iOS quand on focus un input */
+  input.form-control, 
+  select.form-select, 
+  textarea.form-control {
+    font-size: 16px !important;
+  }
+  
+  /* Ajustements pour les dropdown sur petits écrans */
+  .dropdown-menu {
+    max-width: 280px;
+    width: 100%;
+  }
+  
+  /* Réduire la taille de la topnav */
+  .topnav {
+    padding: 0.5rem 0;
+  }
+  
+  /* Ajuster le badge de notifications sur mobile */
+  .badge {
+    font-size: 0.65rem;
+  }
+}
+
+/* Styles pour tablettes (576px à 992px) */
+@media (min-width: 576px) and (max-width: 991.98px) {
+  .container {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  
+  /* Ajustements pour les modals sur tablettes */
+  .modal-dialog {
+    max-width: 90%;
+  }
+  
+  /* Ajuster le Kanban pour tablettes */
+  .kanban-column {
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* Règles communes tablettes et mobiles */
+@media (max-width: 991.98px) {
+  /* Style pour la sidebar mobile */
+  .sidebar {
+    width: 250px !important;
+    position: fixed !important;
+    left: -250px;
+    top: 0;
+    bottom: 0;
+    z-index: 1040;
+    transition: left 0.3s ease;
+  }
+  
+  .sidebar.show {
+    left: 0;
+  }
+  
+  .sidebar-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1030;
+    display: none;
+  }
+  
+  .sidebar-backdrop.show {
+    display: block;
+  }
+  
+  /* Amélioration du toggle button */
+  .sidebar-toggle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--sidebar-bg);
+    color: white;
+    border: none;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1050;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Ajustements pour le tableau de bord */
+  .dashboard-stats-row [class*="col-"] {
+    margin-bottom: 1rem;
+  }
+  
+  /* Changements pour les tables */
+  .table-responsive {
+    margin-bottom: 1rem;
+  }
+  
+  /* Tabs verticaux sur mobile */
+  .nav-tabs {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .nav-tabs .nav-item {
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Boutons sur mobile */
+  .btn-group {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  
+  .btn-group .btn {
+    flex: 1 0 auto;
+  }
+  
+  /* Formulaires sur mobile/tablette */
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  /* Améliorations pour les cards */
+  .card-title {
+    font-size: 1.1rem;
+  }
+  
+  /* Améliorations pour les listes */
+  .list-group-item {
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+/* Drag and drop sur appareils tactiles */
+@media (pointer: coarse) {
+  .kanban-item {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  
+  .kanban-item.touch-drag {
+    opacity: 0.6;
+    transform: scale(1.02);
+  }
+  
+  /* Améliorer le contraste des boutons pour une meilleure accessibilité tactile */
+  .btn {
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Mode d'impression */
+@media print {
+  .sidebar,
+  .sidebar-toggle,
+  .topnav,
+  footer,
+  .btn,
+  form button,
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background-color: white !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  
+  .content {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  
+  .card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+  
+  .container {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+  
+  a[href]:after {
+    content: " (" attr(href) ")";
+  }
+} 

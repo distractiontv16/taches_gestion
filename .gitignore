@@ -1,0 +1,54 @@
+# Fichiers et dossiers de l'environnement Laravel
+/vendor/
+/node_modules/
+/public/storage
+/storage/*.key
+.env
+.env.*
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+/.idea/
+/.vscode/
+.DS_Store
+Thumbs.db
+
+# Cache et logs
+/storage/app/public
+/storage/framework/cache/data
+/storage/framework/sessions
+/storage/framework/views
+/storage/logs
+
+# Fichiers compilés
+/public/hot
+/public/storage
+/public/mix-manifest.json
+/public/js/*.js
+/public/css/*.css
+/public/js/*.map
+/public/css/*.map
+
+# Dump de base de données
+*.sql
+*.sqlite
+
+# Autres fichiers temporaires
+*.log
+*.swp
+*.swo
+
+# Tests
+coverage/
+
+# Fichiers système
+*.bak
+*.tmp
+
+# Ignorer les fichiers générés par npm run build
+/resources/js/*.js
+/resources/css/*.css
+/resources/js/*.map
+/resources/css/*.map 

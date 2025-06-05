@@ -1,22 +1,21 @@
-# Task Manager
-
-
+# Task Manager - Application de Gestion de Tâches
 
 ## Description du Projet
 
-**Task Manager** est une application web développée avec Laravel permettant de gérer efficacement des projets et des tâches. Elle offre une interface intuitive de type Kanban (similaire à ClickUp ou Trello) pour organiser et suivre le travail.
+**Task Manager** est une application web développée avec Laravel permettant de gérer efficacement des tâches personnelles. Elle offre une interface intuitive de type Kanban (similaire à ClickUp ou Trello) pour organiser et suivre votre travail quotidien.
 
 ## Fonctionnalités Principales
 
 - **Gestion complète des tâches** avec différents statuts (À faire, En cours, Terminé)
 - **Interface Kanban** avec glisser-déposer pour réorganiser les tâches
-- **Système de projets** pour regrouper les tâches par contexte
-- **Notes** attachées aux tâches ou projets
+- **Système de priorités** (Faible, Moyenne, Haute) pour organiser vos tâches
+- **Notes personnelles** pour garder vos idées et informations importantes
 - **Rappels et notifications par email** pour les tâches en retard
 - **Tâches routinières** (journalières, hebdomadaires, mensuelles)
-- **Gestion de fichiers** (upload et attachement aux tâches/projets)
+- **Gestion de fichiers** (upload et attachement aux tâches)
 - **Authentification complète** avec vérification par email
 - **Réinitialisation de mot de passe** par email
+- **Interface responsive** adaptée aux mobiles et tablettes
 
 ## Structure du Projet
 
@@ -49,9 +48,10 @@ Task-Manager/
 
 ## Fichiers Clés
 
-- **app/Models/User.php** - Modèle utilisateur avec relations vers tâches, projets, etc.
+- **app/Models/User.php** - Modèle utilisateur avec relations vers tâches, notes, etc.
 - **app/Models/Task.php** - Définition des tâches avec leurs relations et attributs
-- **app/Models/Project.php** - Définition des projets avec leurs relations
+- **app/Models/Note.php** - Définition des notes personnelles
+- **app/Models/Routine.php** - Définition des tâches routinières
 - **app/Console/Commands/SendReminderEmails.php** - Commande d'envoi des emails de rappel
 - **routes/web.php** - Définition de toutes les routes de l'application
 - **.env** - Configuration de l'environnement (base de données, mail, etc.)
@@ -198,28 +198,31 @@ php artisan schedule:work
 - Vérifiez votre email (vérification requise pour accéder à l'application)
 - Connectez-vous avec vos identifiants
 
-### 2. Gestion des Projets
+### 2. Gestion des Tâches
 
-- Créez un nouveau projet depuis le dashboard
-- Ajoutez une description et des détails
-- Associez des membres à votre projet (fonctionnalité d'équipe)
-
-### 3. Gestion des Tâches
-
-- Créez des tâches dans vos projets
-- Définissez la priorité, la date d'échéance et le statut
+- Créez des tâches depuis le dashboard ou la page dédiée
+- Définissez le titre, la description, la priorité et la date d'échéance
+- Organisez vos tâches par statut : À faire, En cours, Terminé
 - Utilisez le glisser-déposer pour changer le statut des tâches
+- Modifiez ou supprimez vos tâches selon vos besoins
 
-### 4. Utilisation des Rappels
+### 3. Utilisation des Rappels
 
-- Créez un rappel pour une tâche importante
-- Spécifiez la date et l'heure du rappel
-- Recevez une notification par email lorsque la tâche est en retard
+- Les rappels sont automatiquement créés pour les tâches avec une date d'échéance
+- Recevez une notification par email 2 heures avant l'échéance
+- Gérez vos rappels depuis la section dédiée
 
-### 5. Tâches Routinières
+### 4. Tâches Routinières
 
 - Créez des tâches qui se répètent (quotidien, hebdomadaire, mensuel)
 - Suivez les récurrences dans la section "Routines"
+- Configurez les jours ouvrables uniquement si nécessaire
+
+### 5. Notes Personnelles
+
+- Créez des notes pour garder vos idées et informations importantes
+- Organisez vos notes par date et heure
+- Accédez rapidement à vos notes depuis le dashboard
 
 ## Comment Ajouter une Tâche via SQL
 
@@ -227,24 +230,22 @@ Vous pouvez insérer directement une tâche dans la base de données avec cette 
 
 ```sql
 INSERT INTO tasks (
-    user_id, 
-    project_id, 
-    title, 
-    description, 
-    due_date, 
-    priority, 
-    status, 
-    created_at, 
+    user_id,
+    title,
+    description,
+    due_date,
+    priority,
+    status,
+    created_at,
     updated_at
 )
 VALUES (
     1, -- ID de l'utilisateur
-    1, -- ID du projet
-    'Nouvelle tâche', 
-    'Description de la tâche', 
-    NOW(), -- Date d'échéance (maintenant)
+    'Nouvelle tâche',
+    'Description de la tâche',
+    '2025-06-10 14:00:00', -- Date d'échéance
     'high', -- Priorité ('low', 'medium', 'high')
-    'to_do', -- Statut ('to_do', 'in_progress', 'done')
+    'to_do', -- Statut ('to_do', 'in_progress', 'completed')
     NOW(), -- Date de création
     NOW() -- Date de mise à jour
 );

@@ -8,8 +8,7 @@ use App\Http\Controllers\ChecklistItemController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\MailController;
 use App\Http\Controllers\NoteController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\ProjectFileController;
+
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\RoutineController;
 use App\Http\Controllers\SettingsController;
@@ -39,16 +38,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::controller(MailController::class)->prefix('mail')->name('mail.')->group(function () {
         Route::get('/', 'index')->name('inbox');
     });
-    Route::resource('projects', ProjectController::class);
-    Route::post('project/team', [ProjectController::class, 'addMember'])->name('projects.addMember');
-    Route::post('project/team/remove', [ProjectController::class, 'removeMember'])->name('projects.removeMember');
-    Route::get('projects/{project}/tasks', [TaskController::class, 'index'])->name('projects.tasks.index');
-    Route::post('projects/{project}/tasks', [TaskController::class, 'store'])->name('projects.tasks.store');
 
-    Route::get('tasks', [TaskController::class, 'index'])->name('tasks.index');
-    Route::get('tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
-    Route::put('tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
-    Route::delete('tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+
+    Route::resource('tasks', TaskController::class);
     Route::post('tasks/{task}/update-status', [TaskController::class, 'updateStatus']);
     Route::post('tasks/{task}/toggle-complete', [TaskController::class, 'toggleComplete'])->name('tasks.toggle-complete');
     
@@ -94,14 +86,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->get();
 
         return view('dashboard', compact(
-            'tasksCount', 
-            'routinesCount', 
-            'notesCount', 
+            'tasksCount',
+            'routinesCount',
+            'notesCount',
             'remindersCount',
-            'filesCount', 
-            'recentTasks', 
-            'todayRoutines', 
-            'recentNotes', 
+            'filesCount',
+            'recentTasks',
+            'todayRoutines',
+            'recentNotes',
             'upcomingReminders'
         ));
     })->name('dashboard');

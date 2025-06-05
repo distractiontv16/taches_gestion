@@ -1,10 +1,6 @@
 @extends('layouts.app')
 @section('title')
-    @if(isset($project))
-        {{ $project->name }} - Tâches
-    @else
-        Mes Tâches
-    @endif
+    Mes Tâches
 @endsection
 @section('content')
     <style>
@@ -86,13 +82,12 @@
     </style>
     <div class="container">
         <div class="bg-white align-items-center mb-4 shadow-sm p-3 rounded">
-            <h2 class="text-center">
-                @if(isset($project))
-                    {{ $project->name }} - Tâches
-                @else
-                    Mes Tâches
-                @endif
-            </h2>
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">Mes Tâches</h2>
+                <a href="{{ route('tasks.create') }}" class="btn btn-primary">
+                    <i class="bi bi-plus"></i> Nouvelle Tâche
+                </a>
+            </div>
         </div>
 
         @if (session('success'))
@@ -119,10 +114,6 @@
                 <div class="kanban-column">
                     <div class="d-flex justify-content-between bg-primary text-white shadow-sm align-items-center px-3 py-2 rounded-top">
                         <h4 class="text-white fw-bolder m-0">À faire</h4>
-                        @if(isset($project))
-                        <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#createTaskModal"
-                            data-status="to_do" style="padding-top: 0.5rem; padding-bottom: 0.5rem;">+</button>
-                        @endif
                     </div>
                     
                     <div class="kanban-list" id="to_do">
@@ -156,11 +147,6 @@
                 <div class="kanban-column">
                     <div class="d-flex justify-content-between shadow-sm align-items-center bg-warning px-3 py-2 rounded-top">
                         <h4 class="text-white fw-bolder m-0">En cours</h4>
-                        @if(isset($project))
-                        <button type="button" class="btn btn-light" data-bs-toggle="modal"
-                            data-bs-target="#createTaskModal" data-status="in_progress"
-                            style="padding-top: 0.5rem; padding-bottom: 0.5rem;">+</button>
-                        @endif
                     </div>
                     
                     <div class="kanban-list" id="in_progress">
@@ -193,10 +179,6 @@
                 <div class="kanban-column">
                     <div class="d-flex justify-content-between shadow-sm align-items-center bg-success px-3 py-2 rounded-top">
                         <h4 class="text-white fw-bolder m-0">Terminé</h4>
-                        @if(isset($project))
-                        <button type="button" class="btn btn-light" data-bs-toggle="modal"
-                            data-bs-target="#createTaskModal" data-status="completed" style="padding-top: 0.5rem; padding-bottom: 0.5rem;">+</button>
-                        @endif
                     </div>
                     <div class="kanban-list" id="completed">
                         @foreach ($tasks['completed'] ?? [] as $task)
@@ -225,112 +207,33 @@
             </div>
         </div>
 
-        @if(isset($project))
-        <!-- Modal Création de Tâche -->
-        <div class="modal fade" id="createTaskModal" tabindex="-1" aria-labelledby="createTaskModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="{{ route('projects.tasks.store', $project->id) }}" method="POST">
-                        @csrf
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="createTaskModalLabel">Créer une tâche</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="title" class="form-label">Titre</label>
-                                <input type="text" name="title" id="title" class="form-control" required>
-                                @error('title')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="mb-3">
-                                <label for="description" class="form-label">Description</label>
-                                <textarea name="description" id="description" class="form-control"></textarea>
-                                @error('description')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="mb-3">
-                                <label for="due_date" class="form-label">Date d'échéance</label>
-                                <input type="date" name="due_date" id="due_date" class="form-control">
-                                @error('due_date')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="mb-3">
-                                <label for="priority" class="form-label">Priorité</label>
-                                <select name="priority" id="priority" class="form-select" required>
-                                    <option value="low">Faible</option>
-                                    <option value="medium">Moyenne</option>
-                                    <option value="high">Haute</option>
-                                </select>
-                                @error('priority')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="mb-3">
-                                <label for="user_id" class="form-label">Assigner à</label>
-                                <select name="user_id" id="user_id" class="form-select">
-                                    <option value="{{auth()->user()->id}}">Moi-même</option>
-                                    @foreach ($users as $user)  
-                                        <option value="{{$user->id}}">{{$user->name}}</option>
-                                    @endforeach
-                                </select>
-                                @error('user_id')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <input type="hidden" name="status" id="task_status">
 
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                            <button type="submit" class="btn btn-primary">Créer la tâche</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        @endif
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
             const kanbanItems = document.querySelectorAll('.kanban-item');
             const kanbanLists = document.querySelectorAll('.kanban-list');
-            const createTaskModal = document.getElementById('createTaskModal');
-            
+
             // Gestion des onglets sur mobile/tablet
             const kanbanTabs = document.querySelectorAll('.kanban-tab');
             const kanbanTabContents = document.querySelectorAll('.kanban-tab-content');
-            
+
             kanbanTabs.forEach(tab => {
                 tab.addEventListener('click', function() {
                     // Retirer la classe active de tous les onglets
                     kanbanTabs.forEach(t => t.classList.remove('active'));
                     // Ajouter la classe active à l'onglet cliqué
                     this.classList.add('active');
-                    
+
                     // Masquer tous les contenus d'onglets
                     kanbanTabContents.forEach(content => content.classList.remove('active'));
-                    
+
                     // Afficher le contenu correspondant à l'onglet
                     const targetId = this.getAttribute('data-target');
                     document.getElementById(targetId).classList.add('active');
                 });
             });
-            
-            if (createTaskModal) {
-                const taskStatusInput = document.getElementById('task_status');
-
-                createTaskModal.addEventListener('show.bs.modal', function(event) {
-                    var button = event.relatedTarget; 
-                    var status = button.getAttribute('data-status'); 
-                    taskStatusInput.value = status;
-                });
-            }
 
             kanbanItems.forEach(item => {
                 item.addEventListener('dragstart', handleDragStart);

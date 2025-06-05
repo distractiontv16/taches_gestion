@@ -1,8 +1,8 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Models\Project;
 use App\Models\Task;
+use App\Models\User;
 use App\Models\Reminder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -10,39 +10,41 @@ use Carbon\Carbon;
 
 class TaskController extends Controller
 {
-    public function index(Project $project = null)
+    public function index()
     {
-        // Si un projet est fourni, affiche les tâches de ce projet
-        if ($project) {
-            $tasks = $project->tasks()->get()->groupBy('status');
-            $users = $project->users()->get();  
-            return view('tasks.index', compact('project', 'tasks', 'users'));
-        }
-        
-        // Si aucun projet n'est fourni, affiche toutes les tâches de l'utilisateur actuel
+        // Affiche toutes les tâches de l'utilisateur actuel
         $user = Auth::user();
         $tasks = $user->tasks()->get()->groupBy('status');
         return view('tasks.index', compact('tasks'));
     }
 
-    public function store(Request $request, Project $project)
+    public function create()
+    {
+        return view('tasks.create');
+    }
+
+    public function store(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'due_date' => 'nullable|date',
             'priority' => 'required|in:low,medium,high',
+            'status' => 'nullable|in:to_do,in_progress,completed',
         ]);
 
-        $task = $project->tasks()->create($request->all());
+        $taskData = $request->all();
+        $taskData['user_id'] = Auth::id();
+        $taskData['status'] = $request->status ?? 'to_do';
+
+        $task = Task::create($taskData);
 
         // Create a reminder for the task if due_date is set
         if ($request->filled('due_date')) {
             $this->createTaskReminder($task);
         }
 
-        return redirect()->route('projects.tasks.index', $project)->with('success', 'Task created successfully.');
+        return redirect()->route('tasks.index')->with('success', 'Tâche créée avec succès.');
     }
 
     public function show(Task $task)
@@ -76,7 +78,7 @@ class TaskController extends Controller
             }
         }
 
-        return redirect()->route('projects.tasks.index', $task->project_id)->with('success', 'Task updated successfully.');
+        return redirect()->route('tasks.index')->with('success', 'Tâche mise à jour avec succès.');
     }
 
     public function updateStatus(Request $request, Task $task)
@@ -111,17 +113,19 @@ class TaskController extends Controller
         ]);
     }
 
+    public function edit(Task $task)
+    {
+        return view('tasks.edit', compact('task'));
+    }
+
     public function destroy(Task $task)
     {
-        // Récupérer l'ID du projet avant de supprimer la tâche
-        $projectId = $task->project_id;
-        
         // Delete any reminders associated with this task
         $task->reminders()->delete();
-        
+
         // Supprimer la tâche et tous ses éléments de checklist (via la cascade)
         $task->delete();
-        
+
         // Si cette requête est effectuée via AJAX
         if (request()->ajax()) {
             return response()->json([
@@ -129,13 +133,8 @@ class TaskController extends Controller
                 'message' => 'Tâche supprimée avec succès.'
             ]);
         }
-        
-        // Rediriger vers la liste des tâches du projet ou la liste des tâches générales
-        if ($projectId) {
-            return redirect()->route('projects.tasks.index', $projectId)->with('success', 'Tâche supprimée avec succès.');
-        } else {
-            return redirect()->route('tasks.index')->with('success', 'Tâche supprimée avec succès.');
-        }
+
+        return redirect()->route('tasks.index')->with('success', 'Tâche supprimée avec succès.');
     }
 
     /**

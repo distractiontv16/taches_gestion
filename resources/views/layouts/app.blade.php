@@ -211,12 +211,7 @@
                     <i class="bi bi-inbox"></i> Boîte de réception
                 </a>
             </li> --}}
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('projects*') ? 'active' : '' }}"
-                    href="{{ route('projects.index') }}">
-                    <i class="bi bi-folder"></i> Projets
-                </a>
-            </li>
+
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('tasks*') ? 'active' : '' }}" href="{{ route('tasks.index') }}">
                     <i class="bi bi-check2-square"></i> Tâches

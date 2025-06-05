@@ -41,8 +41,8 @@
                                     <i class="bi {{ $task->status == 'completed' ? 'bi-x-circle' : 'bi-check-circle' }}"></i>
                                     {{ $task->status == 'completed' ? 'Marquer comme non terminée' : 'Marquer comme terminée' }}
                                 </button>
-                                <a href="{{ route('projects.tasks.index', $task->project->id) }}" class="btn btn-secondary">
-                                    <i class="bi bi-arrow-90deg-left"></i> </a>
+                                <a href="{{ route('tasks.index') }}" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-90deg-left"></i> Retour</a>
                                 <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')

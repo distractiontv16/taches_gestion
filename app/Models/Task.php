@@ -11,7 +11,6 @@ class Task extends Model
 
     protected $fillable = [
         'user_id',
-        'project_id',
         'title',
         'description',
         'due_date',
@@ -29,10 +28,7 @@ class Task extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function project()
-    {
-        return $this->belongsTo(Project::class);
-    }
+
 
     // Add relationship to reminders
     public function reminders()

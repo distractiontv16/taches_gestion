@@ -64,13 +64,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->notify(new \App\Notifications\VerifyEmail);
     }
 
-    /**
-     * Get the projects for the user.
-     */
-    public function projects()
-    {
-        return $this->hasMany(Project::class);
-    }
+
 
     /**
      * Get the tasks for the user.
@@ -109,8 +103,5 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Reminder::class);
     }
 
-    public function projectMembers()
-    {
-        return $this->belongsToMany(Project::class, 'project_teams', 'user_id', 'project_id');
-    }
+
 }

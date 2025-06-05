@@ -56,13 +56,18 @@
     </div>
     <div class="content">
         <div class="alert">
-            <strong>Attention!</strong> Une tâche a dépassé sa date d'échéance sans être validée.
+            <strong>⚠️ TÂCHE EN RETARD!</strong> Cette tâche a dépassé sa date d'échéance de plus de 30 minutes sans être validée.
         </div>
-        
+
         <h3>{{ $task->title }}</h3>
-        
-        <p><strong>Date d'échéance:</strong> {{ \Carbon\Carbon::parse($task->due_date)->format('d/m/Y H:i') }}</p>
-        <p><strong>Priorité:</strong> {{ ucfirst($task->priority) }}</p>
+
+        <p><strong>📅 Date d'échéance:</strong> {{ \Carbon\Carbon::parse($task->due_date)->format('d/m/Y à H:i') }}</p>
+        <p><strong>⏰ Retard:</strong> {{ \Carbon\Carbon::parse($task->due_date)->diffForHumans() }}</p>
+        <p><strong>🔥 Priorité:</strong> {{ ucfirst($task->priority) }}</p>
+
+        @if($task->is_auto_generated && $task->routine)
+            <p><strong>🔄 Tâche automatique:</strong> Générée par la routine "{{ $task->routine->title }}"</p>
+        @endif
         
         @if($task->description)
             <p><strong>Description:</strong></p>

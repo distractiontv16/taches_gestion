@@ -20,6 +20,7 @@ class Task extends Model
         'status',
         'completed_at',
         'is_auto_generated',
+        'overdue_notification_sent',
         'generation_date',
         'target_date',
     ];
@@ -27,6 +28,7 @@ class Task extends Model
     protected $casts = [
         'completed_at' => 'datetime',
         'is_auto_generated' => 'boolean',
+        'overdue_notification_sent' => 'boolean',
         'generation_date' => 'date',
         'target_date' => 'date',
     ];

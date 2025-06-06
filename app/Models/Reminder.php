@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\EncryptableFields;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
 class Reminder extends Model
 {
-    use HasFactory;
+    use HasFactory, EncryptableFields;
 
     protected $fillable = [
         'title',

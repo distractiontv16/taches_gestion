@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use App\Notifications\ResetPassword;
+use App\Traits\EncryptableFields;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -10,7 +11,7 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, EncryptableFields;
 
     /**
      * The attributes that are mass assignable.

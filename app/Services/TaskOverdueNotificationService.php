@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Task;
 use App\Mail\TaskReminderMail;
+use App\Services\RealTimeNotificationService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -15,6 +16,13 @@ use Illuminate\Support\Collection;
  */
 class TaskOverdueNotificationService
 {
+    protected $realTimeNotificationService;
+
+    public function __construct(RealTimeNotificationService $realTimeNotificationService)
+    {
+        $this->realTimeNotificationService = $realTimeNotificationService;
+    }
+
     /**
      * Délai en minutes après l'échéance pour envoyer la notification
      */
@@ -121,6 +129,9 @@ class TaskOverdueNotificationService
 
         $overdueMinutes = $this->calculateOverdueMinutes($task);
         Log::info("Notification de retard envoyée pour la tâche {$task->id} ({$task->title}) - Retard: {$overdueMinutes} minutes");
+
+        // Broadcast real-time overdue notification
+        $this->realTimeNotificationService->broadcastTaskOverdue($task);
 
         return true;
     }

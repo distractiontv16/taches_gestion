@@ -269,8 +269,83 @@ body.no-animations *::after {
   }
 }
 
-.notification-badge {
+.pulse-animation {
   animation: pulse 2s infinite;
+}
+
+.notification-badge {
+  transition: all 0.3s ease;
+}
+
+/* Indicateur de connexion temps réel */
+.connection-indicator {
+  transition: background-color 0.3s ease;
+}
+
+.connection-indicator.connected {
+  background-color: #28a745 !important;
+}
+
+.connection-indicator.disconnected {
+  background-color: #ffc107 !important;
+}
+
+.connection-indicator.error {
+  background-color: #dc3545 !important;
+}
+
+/* Badge pour tâches en retard */
+.overdue-badge {
+  animation: pulse 1.5s infinite;
+  box-shadow: 0 0 5px rgba(255, 193, 7, 0.5);
+}
+
+/* Styles pour les alertes critiques */
+.critical-alert {
+  border-left: 4px solid #dc3545;
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* Animation pour les toasts */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast {
+  animation: slideInRight 0.3s ease-out;
+}
+
+/* Styles pour le dropdown de notifications amélioré */
+.notification-dropdown-content {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-dropdown-content .dropdown-item {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.notification-dropdown-content .dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.notification-dropdown-content .dropdown-item:hover {
+  background-color: rgba(0,123,255,0.1);
+}
+
+.notification-dropdown-content .dropdown-header {
+  font-weight: 600;
+  color: #495057;
+  padding: 0.5rem 1rem;
+  background-color: rgba(0,0,0,0.05);
 }
 
 /* Animation pour les items de liste */

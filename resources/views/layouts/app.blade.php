@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @auth
+    <meta name="user-id" content="{{ Auth::id() }}">
+    @endauth
     <title> @yield('title') | Gestionnaire de Tâches </title>
     <link rel="shortcut icon" href="{{ asset('assets/img/logo-circle.png') }}" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -265,34 +268,111 @@
                     <div class="navbar-collapse justify-content-end" id="navbarNavDropdown">
                         <ul class="navbar-nav">
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button"
+                                <a class="nav-link dropdown-toggle position-relative" href="#" id="notificationDropdown" role="button"
                                     data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-bell"></i>
-                                    <span class="badge rounded-pill bg-danger">
-                                        @if(Auth::check())
-                                            {{ Auth::user()->tasks()->where('status', '!=', 'completed')->count() }}
-                                        @else
-                                            0
-                                        @endif
-                                    </span>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown">
-                                    <li class="dropdown-header">Tâches non terminées</li>
+
                                     @if(Auth::check())
-                                        @forelse (Auth::user()->tasks()->where('status', '!=', 'completed')->get() as $task)
-                                            <li>
-                                                <a class="dropdown-item" href="{{ route('tasks.show', $task->id) }}">
-                                                    <span class="fw-bold">{{ Str::limit($task->title, 30) }}</span>
-                                                    <br>
-                                                    <small class="text-muted">Échéance: {{ $task->due_date ?: 'Non définie' }}</small>
-                                                </a>
-                                            </li>
-                                        @empty
-                                            <li><span class="dropdown-item">Aucune tâche en attente</span></li>
-                                        @endforelse
+                                        @php
+                                            $user = Auth::user();
+                                            $incompleteTasks = $user->tasks()->where('status', '!=', 'completed')->get();
+                                            $now = \Carbon\Carbon::now();
+
+                                            $pendingTasks = $incompleteTasks->filter(function($task) use ($now) {
+                                                return !$task->due_date || \Carbon\Carbon::parse($task->due_date)->isFuture();
+                                            });
+
+                                            $overdueTasks = $incompleteTasks->filter(function($task) use ($now) {
+                                                return $task->due_date && \Carbon\Carbon::parse($task->due_date)->isPast();
+                                            });
+
+                                            $totalCount = $incompleteTasks->count();
+                                            $overdueCount = $overdueTasks->count();
+                                            $pendingCount = $pendingTasks->count();
+                                        @endphp
+
+                                        <!-- Badge principal avec animation si tâches en retard -->
+                                        <span class="badge rounded-pill bg-danger notification-badge {{ $overdueCount > 0 ? 'pulse-animation' : '' }}">
+                                            {{ $totalCount }}
+                                        </span>
+
+                                        <!-- Badge secondaire pour les tâches en retard -->
+                                        @if($overdueCount > 0)
+                                            <span class="badge rounded-pill bg-warning position-absolute top-0 start-100 translate-middle overdue-badge"
+                                                  style="font-size: 0.6em;">
+                                                {{ $overdueCount }}
+                                            </span>
+                                        @endif
                                     @else
-                                        <li><span class="dropdown-item">Aucune tâche en attente</span></li>
+                                        <span class="badge rounded-pill bg-danger notification-badge">0</span>
                                     @endif
+
+                                    <!-- Indicateur de connexion temps réel -->
+                                    <span class="connection-indicator position-absolute"
+                                          style="top: -2px; right: -2px; width: 8px; height: 8px; border-radius: 50%; background: #28a745;"></span>
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-end notification-dropdown-content" aria-labelledby="notificationDropdown" style="min-width: 300px;">
+                                    @if(Auth::check())
+                                        <!-- Section tâches en retard -->
+                                        @if($overdueCount > 0)
+                                            <li class="dropdown-header text-danger">
+                                                <i class="bi bi-exclamation-triangle"></i> Tâches en retard ({{ $overdueCount }})
+                                            </li>
+                                            @foreach($overdueTasks->take(3) as $task)
+                                                <li>
+                                                    <a class="dropdown-item text-danger" href="{{ route('tasks.show', $task->id) }}">
+                                                        <strong>{{ $task->title }}</strong>
+                                                        @if($task->due_date)
+                                                            <br><small>Échéance: {{ $task->due_date->format('d/m/Y H:i') }}</small>
+                                                            <br><small>En retard de {{ $now->diffInMinutes(\Carbon\Carbon::parse($task->due_date)) }} minutes</small>
+                                                        @endif
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                            @if($overdueCount > 3)
+                                                <li class="dropdown-item text-muted text-center">
+                                                    <small>... et {{ $overdueCount - 3 }} autres tâches en retard</small>
+                                                </li>
+                                            @endif
+                                            <li><hr class="dropdown-divider"></li>
+                                        @endif
+
+                                        <!-- Section tâches en attente -->
+                                        @if($pendingCount > 0)
+                                            <li class="dropdown-header">
+                                                <i class="bi bi-clock"></i> Tâches en attente ({{ $pendingCount }})
+                                            </li>
+                                            @foreach($pendingTasks->take(3) as $task)
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ route('tasks.show', $task->id) }}">
+                                                        {{ $task->title }}
+                                                        @if($task->due_date)
+                                                            <br><small class="text-muted">Échéance: {{ $task->due_date->format('d/m/Y H:i') }}</small>
+                                                        @endif
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                            @if($pendingCount > 3)
+                                                <li class="dropdown-item text-muted text-center">
+                                                    <small>... et {{ $pendingCount - 3 }} autres tâches en attente</small>
+                                                </li>
+                                            @endif
+                                        @endif
+
+                                        @if($totalCount === 0)
+                                            <li class="dropdown-item text-muted text-center">
+                                                <i class="bi bi-check-circle text-success"></i> Aucune tâche en attente
+                                            </li>
+                                        @endif
+                                    @else
+                                        <li class="dropdown-item text-muted">Connectez-vous pour voir vos tâches</li>
+                                    @endif
+
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{{ route('tasks.index') }}">
+                                        <i class="bi bi-list-task"></i> Voir toutes les tâches
+                                    </a></li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">
@@ -342,9 +422,27 @@
         </footer>
     </div>
 
+    <!-- Toast container for real-time notifications -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ asset('assets/animations.js') }}"></script>
+
+    <!-- Pusher for real-time notifications -->
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+
+    <!-- Real-time notifications configuration -->
+    @auth
+    <script>
+        window.pusherConfig = {
+            key: '{{ config('broadcasting.connections.pusher.key') }}',
+            cluster: '{{ config('broadcasting.connections.pusher.options.cluster') }}',
+            encrypted: true
+        };
+    </script>
+    <script src="{{ asset('assets/real-time-notifications.js') }}"></script>
+    @endauth</script>
     <script>
         function updateDateTime() {
             const now = new Date();

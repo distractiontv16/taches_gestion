@@ -5,6 +5,7 @@ use App\Models\Task;
 use App\Models\User;
 use App\Models\Reminder;
 use App\Services\TaskNotificationService;
+use App\Services\RealTimeNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -12,10 +13,14 @@ use Carbon\Carbon;
 class TaskController extends Controller
 {
     protected $taskNotificationService;
+    protected $realTimeNotificationService;
 
-    public function __construct(TaskNotificationService $taskNotificationService)
-    {
+    public function __construct(
+        TaskNotificationService $taskNotificationService,
+        RealTimeNotificationService $realTimeNotificationService
+    ) {
         $this->taskNotificationService = $taskNotificationService;
+        $this->realTimeNotificationService = $realTimeNotificationService;
     }
     public function index()
     {
@@ -61,6 +66,9 @@ class TaskController extends Controller
             }
         }
 
+        // Broadcast dashboard update for real-time notifications
+        $this->realTimeNotificationService->broadcastDashboardUpdate(Auth::id());
+
         return redirect()->route('tasks.index')->with('success', 'Tâche créée avec succès.');
     }
 
@@ -100,8 +108,14 @@ class TaskController extends Controller
         }
 
         // Check if status has changed and notify
-        if ($oldStatus !== $task->status && $task->assigned_to && $task->assigned_to !== $task->user_id) {
-            $this->taskNotificationService->notifyTaskStatusChange($task, $oldStatus, $task->status);
+        if ($oldStatus !== $task->status) {
+            // Send WhatsApp notification if assigned to someone else
+            if ($task->assigned_to && $task->assigned_to !== $task->user_id) {
+                $this->taskNotificationService->notifyTaskStatusChange($task, $oldStatus, $task->status);
+            }
+
+            // Broadcast real-time status change event
+            $this->realTimeNotificationService->broadcastTaskStatusChange($task, $oldStatus, $task->status);
         }
 
         // Update or create reminder if due date has changed
@@ -120,8 +134,14 @@ class TaskController extends Controller
 
     public function updateStatus(Request $request, Task $task)
     {
-        $task->status = $request->input('status');
+        $oldStatus = $task->status;
+        $newStatus = $request->input('status');
+
+        $task->status = $newStatus;
         $task->save();
+
+        // Broadcast real-time status change event
+        $this->realTimeNotificationService->broadcastTaskStatusChange($task, $oldStatus, $newStatus);
 
         return response()->json(['message' => 'Task status updated successfully.']);
     }
@@ -129,11 +149,13 @@ class TaskController extends Controller
     public function toggleComplete(Task $task)
     {
         $wasCompleted = $task->status === 'completed';
-        
-        $task->status = $wasCompleted ? 'to_do' : 'completed';
+        $oldStatus = $task->status;
+        $newStatus = $wasCompleted ? 'to_do' : 'completed';
+
+        $task->status = $newStatus;
         $task->completed_at = $wasCompleted ? null : now();
         $task->save();
-        
+
         // Delete reminders if task is completed
         if (!$wasCompleted) {
             $task->reminders()->delete();
@@ -141,7 +163,10 @@ class TaskController extends Controller
             // Recreate reminder if task is uncompleted and has a due date
             $this->createTaskReminder($task);
         }
-        
+
+        // Broadcast real-time status change event
+        $this->realTimeNotificationService->broadcastTaskStatusChange($task, $oldStatus, $newStatus);
+
         return response()->json([
             'success' => true,
             'message' => $wasCompleted ? 'La tâche a été marquée comme à faire.' : 'La tâche a été marquée comme terminée.',
@@ -173,6 +198,17 @@ class TaskController extends Controller
         }
 
         return redirect()->route('tasks.index')->with('success', 'Tâche supprimée avec succès.');
+    }
+
+    /**
+     * Get notification badge data for real-time updates
+     */
+    public function getNotificationBadges()
+    {
+        $user = Auth::user();
+        $badgeData = $this->realTimeNotificationService->getBadgeData($user);
+
+        return response()->json($badgeData);
     }
 
     /**

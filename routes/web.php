@@ -43,6 +43,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('tasks', TaskController::class);
     Route::post('tasks/{task}/update-status', [TaskController::class, 'updateStatus']);
     Route::post('tasks/{task}/toggle-complete', [TaskController::class, 'toggleComplete'])->name('tasks.toggle-complete');
+
+    // API routes for real-time notifications
+    Route::get('api/notification-badges', [TaskController::class, 'getNotificationBadges'])->name('api.notification-badges');
     
     Route::resource('routines', RoutineController::class)->except(['show']);
     Route::get('routines/showAll', [RoutineController::class, 'showAll'])->name('routines.showAll');

@@ -43,9 +43,12 @@ AWS_DEFAULT_REGION=us-east-1
 AWS_BUCKET=
 AWS_USE_PATH_STYLE_ENDPOINT=false
 
-PUSHER_APP_ID=
-PUSHER_APP_KEY=
-PUSHER_APP_SECRET=
+# Real-time notifications configuration (Phase 3)
+BROADCAST_CONNECTION=pusher
+
+PUSHER_APP_ID=your-pusher-app-id
+PUSHER_APP_KEY=your-pusher-app-key
+PUSHER_APP_SECRET=your-pusher-app-secret
 PUSHER_HOST=
 PUSHER_PORT=443
 PUSHER_SCHEME=https

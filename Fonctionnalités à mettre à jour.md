@@ -155,3 +155,15 @@
 ## 📈 Estimation Globale
 
 > **L'application est à environ 70% de completion par rapport aux spécifications. Les fondations sont solides, mais les fonctionnalités critiques de planification automatique et de notifications précises nécessitent un développement significatif.**
+
+
+👥 Comptes de Test Créés :
+Utilisateur	Email	Mot de Passe	Rôle
+Admin Sécurité	admin@sonama-it.com	SecureAdmin2024!	Administrateur
+Marie Dupont	marie.dupont@sonama-it.com	Manager2024!	Manager
+Jean Martin	jean.martin@sonama-it.com	Developer2024!	Développeur
+Sophie Tester	sophie.test@sonama-it.com	Tester2024!	Testeur
+
+
+php test-encryption-interface.php
+php artisan security:audit --full

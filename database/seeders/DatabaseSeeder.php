@@ -18,5 +18,8 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@example.com',
             'password' => bcrypt('secret'),
         ]);
+
+        // Seeder pour les données de test de la Phase 4 : Sécurité Avancée
+        $this->call(Phase4SecurityTestDataSeeder::class);
     }
 }
